@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components{
+    .setting-button{
+        @apply absolute right-[336px] bottom-[196px] p-2 bg-green-300 hover:bg-green-400 rounded-lg
+    }
+
+    .board{
+        @apply grid grid-cols-8 h-screen bg-gray-400 m-0 p-0 border-black border-2;
+        grid-template-columns: 320px 1fr 1fr 1fr 1fr 1fr 1fr 320px;
+        grid-template-rows: 180px 1fr 1fr 1fr 1fr 1fr 180px;
+    }
+
+    .box{
+        @apply w-full h-full border-2 border-solid border-black;
+    }
+
+    .number{
+        @apply absolute z-[5] bg-white text-xl font-bold flex w-8 justify-center border-black border-b-4 border-r-4;
+    }
+
+    .goldenkey{
+        @apply bg-yellow-300 bg-clip-border bg-center bg-no-repeat;
+        background-image: url('./assets/keys.png')
+    }
+
+    .go{
+        @apply bg-white bg-clip-border bg-cover bg-center;
+        background-image: url('./assets/start.png');
+    }
+
+    .free{
+        @apply bg-black bg-clip-border bg-cover bg-center;
+        background-image: url('./assets/free.png');
+    }
+
+    .button{
+        @apply flex h-full w-full place-content-center items-center relative text-3xl font-bold whitespace-pre-wrap text-center;
+        font-family: "Galmuri14", sans-serif;
+    }
+
+    .hoveredbutton{
+        @apply flex h-full w-full justify-center items-center bg-transparent hover:bg-white/80 text-5xl text-transparent hover:text-black transition-all absolute font-normal;
+        font-family: "Galmuri14", sans-serif;
+    }
+}
