@@ -1,18 +1,26 @@
-# Vue 3 + TypeScript + Vite
+# 황금열쇠 MK4 Ver.0.5
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 현재 진행상황
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Type Support For `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+- [x] 기본 설정 모달
+  - [x] 탭 기능
+  - [x] 판때기 주제 탭
+    - [x] 주제 추가/제거
+    - [x] IndexedDB에 저장 및 불러오기
+  - [x] 황금열쇠 탭
+    - [x] 기본 설정 열쇠 추가/제거
+    - [ ] IndexedDB에 저장 및 불러오기
+  - [ ] 투네이션 위젯 탭
+    - [ ] IndexedDB에 저장 및 불러오기
+    - [ ] 투네이션 Payload 불러오기
+- [x] 판때기 생성
+- [x] 시작 메뉴
+  - [x] 판 섞기
+  - [x] 판 섞기 + 열쇠 추가
+  - [x] 판 초기화
+- [x] 판때기 버튼 기능
+- [x] 판때기 시계 기능
+- [ ] 황금열쇠 돌림판
+- [ ] 곡 추첨 리스트
+- [ ] 랜덤 무인도
+- [ ] 체크포인트 생성 기능
