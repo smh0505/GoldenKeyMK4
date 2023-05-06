@@ -36,6 +36,31 @@
         background-image: url('./assets/free.png');
     }
 
+    .island1 {
+        @apply bg-transparent bg-clip-border bg-cover bg-center;
+        background-image: url('./assets/djmax.png');
+    }
+
+    .island2 {
+        @apply bg-transparent bg-clip-border bg-cover bg-center;
+        background-image: url('./assets/ez2on.png');
+    }
+
+    .island3 {
+        @apply bg-transparent bg-clip-border bg-cover bg-center;
+        background-image: url('./assets/mars.png');
+    }
+
+    .island4 {
+        @apply bg-transparent bg-clip-border bg-cover bg-center;
+        background-image: url('./assets/circle.png');
+    }
+
+    .island5 {
+        @apply bg-transparent bg-clip-border bg-cover bg-center;
+        background-image: url('./assets/truck.png');
+    }
+
     .button{
         @apply flex h-full w-full place-content-center items-center relative text-3xl font-bold whitespace-pre-wrap text-center;
         font-family: "Galmuri14", sans-serif;

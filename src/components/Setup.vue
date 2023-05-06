@@ -29,10 +29,10 @@
                             <div class="gk-default" v-show="logIndex == 0" v-for="(key, index) in logDefault" :key="index">
                                 <input class="text-input" type="text" placeholder="열쇠 항목" v-model="key.option">
                                 <input class="text-input" type="number" v-model="key.count">
-                                <button class="button-input" @click="addKey()">
+                                <button class="button-input" @click="addKey(index)">
                                     <span class="material-symbols-outlined">add</span>
                                 </button>
-                                <button class="button-input" @click="removeKey()" v-if="index >= 1">
+                                <button class="button-input" @click="removeKey(index)" v-if="index >= 1">
                                     <span class="material-symbols-outlined">close</span>
                                 </button>
                             </div>
@@ -76,20 +76,27 @@ export default {
         removeTheme(index: number) {
             this.themes.splice(index, 1)
         },
-        addKey() {
-            this.logDefault.push({ option: "", count: 1 })  
+        addKey(index: number) {
+            this.logDefault.splice(index + 1, 0, { option: "", count: 1 })  
         },
-        removeKey() {
-            this.logDefault.pop()  
+        removeKey(index: number) {
+            this.logDefault.splice(index, 1)  
         },
         async printResult() {
             if (this.themes.length < 14) {
                 window.alert('오류: 판때기의 주제가 최소 14개가 있어야 정상 작동합니다.')
             } else {
-                const response = await axios.get('https://toon.at/widget/alertbox/' + this.password)
-                console.log(response.data)
-                LocalForage.setItem('themes', JSON.parse(JSON.stringify(this.themes)))
-                this.$emit('close', this.themes)
+                const response = await axios.get('https://cors-anywhere.herokuapp.com/https://toon.at/widget/alertbox/' + this.password)
+                const re = /"payload":"(?<payload>\w+)"/gm
+                const groups = re.exec(response.data)?.groups as { payload: string }
+
+                if (groups.payload !== null && groups.payload !== "") {
+                    LocalForage.setItem('toonation', this.password)
+                    LocalForage.setItem('themes', JSON.parse(JSON.stringify(this.themes)))
+                    this.$emit('close', this.themes)
+                } else {
+                    window.alert('오류: 투네이션으로부터 Payload를 받는데 실패했습니다.')
+                }
             }
         }
     },
@@ -99,6 +106,12 @@ export default {
                 const themes = value as Array<{ head: string, tail: string }>
                 this.themes.splice(0, 1)
                 themes.forEach(x => this.themes.push(x))
+            }
+        })
+        LocalForage.getItem('toonation').then(value => {
+            if (value !== null) {
+                const password = value as string
+                this.password = password
             }
         })
     }

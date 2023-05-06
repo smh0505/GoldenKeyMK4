@@ -5,7 +5,7 @@
         </Setup>
     </Teleport>
     <div class="board">
-        <div v-for="(block, index) in blocks" class="box" :class="{ goldenkey: goldenkeys.includes(index), go: index == 0, free: index == 13 }" :style="block.style">
+        <div v-for="(block, index) in blocks" class="box" :class="blockType(index)" :style="block.style">
             <div v-if="index !== 0 && index !== 13" class="number">{{ index }}</div>
             <div v-if="index == 0" class="button" @click="showModal = true">
                 <button class="hoveredbutton">출발</button>
@@ -14,11 +14,15 @@
                     </GoMenu>
                 </Teleport>
             </div>
-            <div v-else-if="index == 7"></div>
+            <div v-else-if="index == 7" class="button">
+                <button class="hoveredbutton">{{ islands[island1] }}</button>
+            </div>
             <div v-else-if="index == 13" class="button">
                 <button class="hoveredbutton">뱅하싶</button>
             </div>
-            <div v-else-if="index == 20"></div>
+            <div v-else-if="index == 20" class="button">
+                <button class="hoveredbutton">{{ islands[island2] }}</button>
+            </div>
             <div v-else-if="goldenkeys.includes(index)" class="button">
                 <button class="hoveredbutton">황금열쇠</button>
             </div>
@@ -78,6 +82,9 @@ export default {
             colors: new Map<string, number>,
             board: new Array<string>,
             backupBoard: new Array<string>,
+            island1: 0,
+            island2: 1,
+            islands: ['디맥섬', '투온섬', '식스타섬', '뱅섬', '프세카섬']
         }
     },
     components: {
@@ -141,16 +148,37 @@ export default {
             for (let i = 0; i < 26; i++) {
                 if (i === 0) {
                     this.board.push('출발')
-                } else if (i === 7 || i === 20) {
-                    this.board.push('무인도')
+                } else if (i === 7) {
+                    this.island1 = Math.floor(Math.random() * 5)
+                    this.board.push(this.islands[this.island1])
                 } else if (i === 13) {
                     this.board.push('뱅하싶')
+                } else if (i === 20) { 
+                    this.island2 = Math.floor(Math.random() * 5)
+                    while (this.island2 === this.island1) {
+                        this.island2 = Math.floor(Math.random() * 5)
+                    }
+                    this.board.push(this.islands[this.island2])
                 } else if (this.goldenkeys.includes(i)) {
                     this.board.push('황금열쇠')
                 } else {
                     this.board.push(this.themes[j])
                     j++
                 }
+            }
+
+            console.log(this.board)
+        },
+        blockType(index: number) {
+            return {
+                goldenkey: this.goldenkeys.includes(index),
+                go: index === 0,
+                free: index === 13,
+                island1: (index === 7 && this.island1 === 0) || (index === 20 && this.island2 === 0),
+                island2: (index === 7 && this.island1 === 1) || (index === 20 && this.island2 === 1),
+                island3: (index === 7 && this.island1 === 2) || (index === 20 && this.island2 === 2),
+                island4: (index === 7 && this.island1 === 3) || (index === 20 && this.island2 === 3),
+                island5: (index === 7 && this.island1 === 4) || (index === 20 && this.island2 === 4),
             }
         }
     },
