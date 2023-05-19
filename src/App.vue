@@ -5,6 +5,10 @@
         </Setup>
     </Teleport>
     <div class="board">
+        <div class="col-span-6 row-span-5 box">
+            <Timer />
+            <Wheel :show="state === states.goldenkey" :payload="payload"/>
+        </div>
         <div v-for="(block, index) in blocks" class="box" :class="blockType(index)" :style="block.style">
             <div v-if="index !== 0 && index !== 13" class="number">{{ index }}</div>
             <div v-if="index == 0" class="button" @click="showModal = true">
@@ -17,22 +21,19 @@
             <div v-else-if="index == 7" class="button">
                 <button class="hoveredbutton">{{ islands[island1] }}</button>
             </div>
-            <div v-else-if="index == 13" class="button">
+            <div v-else-if="index == 13" class="button" @click="state = states.dice">
                 <button class="hoveredbutton">뱅하싶</button>
             </div>
             <div v-else-if="index == 20" class="button">
                 <button class="hoveredbutton">{{ islands[island2] }}</button>
             </div>
-            <div v-else-if="goldenkeys.includes(index)" class="button">
+            <div v-else-if="goldenkeys.includes(index)" class="button" @click="state = states.goldenkey">
                 <button class="hoveredbutton">황금열쇠</button>
             </div>
             <div v-else class="button" :style="{ backgroundColor: 'hsl(' + colors.get(board[index]) + ', 50%, 70%' }">
                 <button class="hoveredbutton">{{ index }}</button>
                 <div>{{ board[index] }}</div>
             </div>
-        </div>
-        <div class="col-span-6 row-span-5 box">
-            <Timer />
         </div>
     </div>
 </template>
@@ -41,11 +42,12 @@
 import GoMenu from './components/GoMenu.vue'
 import Timer from './components/Timer.vue'
 import Setup from './components/Setup.vue'
-// import Wheel from './components/Wheel.vue'
+import Wheel from './components/Wheel.vue'
 
 export default {
     data() {
         return {
+            payload: "",
             blocks: [
                 { style: 'grid-column: 8; grid-row: 7;' },
                 { style: 'grid-column: 7; grid-row: 7;' },
@@ -75,7 +77,7 @@ export default {
                 { style: 'grid-column: 8; grid-row: 6;' }
             ],
             goldenkeys: [2, 5, 9, 11, 15, 18, 22, 24],
-            showSetup: false,
+            showSetup: true,
             showModal: false,
             isBoardBuilt: false,
             themes: new Array<string>,
@@ -84,21 +86,27 @@ export default {
             backupBoard: new Array<string>,
             island1: 0,
             island2: 1,
-            islands: ['디맥섬', '투온섬', '식스타섬', '뱅섬', '프세카섬']
+            islands: ['디맥섬', '투온섬', '식스타섬', '뱅섬', '프세카섬'],
+            states: {
+                dice: 0,
+                goldenkey: 1,
+                poll: 2
+            },
+            state: 0
         }
     },
     components: {
-        GoMenu, Timer, Setup// Wheel
+        GoMenu, Timer, Setup, Wheel
     },
     methods: {
-        GenerateThemes(themes: Array<{head: string, tail: string}>) {
+        GenerateThemes(themes: Array<{head: string, tail: string}>, payload: string) {
             this.showSetup = false
 
             if (!this.isBoardBuilt) {
                 while (this.themes.length < 14) {
                     const n = Math.floor(Math.random() * themes.length)
                     const theme = themes[n].head + "\n" + themes[n].tail
-                    const color = Math.floor(Math.random() * 361)
+                    const color = Math.floor(Math.random() * 360)
 
                     if (!this.themes.includes(theme)) {
                         this.themes.push(theme)
@@ -109,6 +117,8 @@ export default {
                 this.buildBoard()
                 this.backupBoard = this.board
                 this.isBoardBuilt = true
+
+                this.payload = payload
             }
         },
         shuffle() {
@@ -181,9 +191,6 @@ export default {
                 island5: (index === 7 && this.island1 === 4) || (index === 20 && this.island2 === 4),
             }
         }
-    },
-    created() {
-        this.showSetup = true
     }
 }
 </script>

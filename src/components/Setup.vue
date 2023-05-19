@@ -86,14 +86,15 @@ export default {
             if (this.themes.length < 14) {
                 window.alert('오류: 판때기의 주제가 최소 14개가 있어야 정상 작동합니다.')
             } else {
-                const response = await axios.get('https://cors-anywhere.herokuapp.com/https://toon.at/widget/alertbox/' + this.password)
+                const response = await axios.get('https://corsproxy.io/?https://toon.at/widget/alertbox/' + this.password)
                 const re = /"payload":"(?<payload>\w+)"/gm
                 const groups = re.exec(response.data)?.groups as { payload: string }
 
                 if (groups.payload !== null && groups.payload !== "") {
                     LocalForage.setItem('toonation', this.password)
                     LocalForage.setItem('themes', JSON.parse(JSON.stringify(this.themes)))
-                    this.$emit('close', this.themes)
+                    LocalForage.setItem('items', JSON.parse(JSON.stringify(this.logDefault)))
+                    this.$emit('close', this.themes, groups.payload)
                 } else {
                     window.alert('오류: 투네이션으로부터 Payload를 받는데 실패했습니다.')
                 }
@@ -106,6 +107,13 @@ export default {
                 const themes = value as Array<{ head: string, tail: string }>
                 this.themes.splice(0, 1)
                 themes.forEach(x => this.themes.push(x))
+            }
+        })
+        LocalForage.getItem('items').then(value => {
+            if (value !== null) {
+                const items = value as Array<{ option: string, count: number }>
+                this.logDefault.splice(0, 1)
+                items.forEach(x => this.logDefault.push(x))
             }
         })
         LocalForage.getItem('toonation').then(value => {
