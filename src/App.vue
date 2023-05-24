@@ -6,8 +6,9 @@
     </Teleport>
     <div class="board">
         <div class="col-span-6 row-span-5 box">
+            <Wheel :show="state === states.goldenkey" :payload="payload" />
+            <Inventory />
             <Timer />
-            <Wheel :show="state === states.goldenkey" :payload="payload"/>
         </div>
         <div v-for="(block, index) in blocks" class="box" :class="blockType(index)" :style="block.style">
             <div v-if="index !== 0 && index !== 13" class="number">{{ index }}</div>
@@ -43,6 +44,7 @@ import GoMenu from './components/GoMenu.vue'
 import Timer from './components/Timer.vue'
 import Setup from './components/Setup.vue'
 import Wheel from './components/Wheel.vue'
+import Inventory from './components/Inventory.vue'
 
 export default {
     data() {
@@ -96,7 +98,7 @@ export default {
         }
     },
     components: {
-        GoMenu, Timer, Setup, Wheel
+        GoMenu, Timer, Setup, Wheel, Inventory
     },
     methods: {
         GenerateThemes(themes: Array<{head: string, tail: string}>, payload: string) {

@@ -1,22 +1,24 @@
 <template>
     <v-stage :config="{ width: 712, height: 712 }">
         <v-layer ref="layer">
-            <v-wedge v-if="show" v-for="(item, index) in items" :config="sectorConfig(index, item)"></v-wedge>
-            <v-text v-if="show" v-for="(item, index) in items" :config="textConfig(index, item)"></v-text>
-            <v-line v-if="show" :config="{points:[586, 356, 606, 366, 606, 346], fill: 'black', closed: true}"></v-line>
+            <v-wedge v-if="show" v-for="(item, index) in donation.items" :config="sectorConfig(index, item)"></v-wedge>
+            <v-text v-if="show" v-for="(item, index) in donation.items" :config="textConfig(index, item)"></v-text>
+            <v-line v-if="show" :config="arrow"></v-line>
         </v-layer>
     </v-stage>
-    <div v-if="show && rotateState === 3" class="absolute left-[364px] top-[224px] h-[600px] w-[630px] bg-black/50 p-4">
+    <div v-if="show && rotateState === 3" class="resultScreen">
         <p class="text-2xl text-white">다음 황금열쇠는</p>
-        <p class="text-5xl text-yellow-300">{{ result() }}</p>
+        <p class="text-5xl text-yellow-300">{{ result }}</p>
     </div>
-    <button v-if="show" class="rotateButton" v-show="rotateState !== 2" @click="click()">
+    <button v-if="show" class="rotateButton" v-show="rotateState !== 2 && donation.items.length > 0" @click="click()">
         {{ rotateTexts[rotateState] }}
     </button>
 </template>
 
 <script lang="ts">
 import { ref } from 'vue'
+import { useDonationStore } from '../stores/DonationStore'
+import { useInventoryStore } from '../stores/InventoryStore'
 
 const rotateStates = {
     idle: 0,
@@ -36,41 +38,42 @@ export default {
     data() {
         return {
             socket: ref<WebSocket | null>(null),
-            items: [
-                { option: '가', count: 1, color: 30 },
-                { option: '나', count: 1, color: 60 },
-                { option: '다', count: 1, color: 90 },
-                { option: '라', count: 1, color: 120 },
-                { option: '마', count: 1, color: 150 },
-                { option: '바', count: 1, color: 180 },
-            ],//new Array<{ option: string, count: number, color: number }>,
+            donation: useDonationStore(),
+            inventory: useInventoryStore(),
             rotateAngle: 0,
             rotateSpeed: 50,
             rotateTexts: ['돌리기', '멈추기', '', '다음'],
-            rotateState: 0
+            rotateState: 0,
+            arrow: {
+                points: [586, 356, 606, 366, 606, 346],
+                fill: 'black',
+                closed: true
+            }
+        }
+    },
+    computed: {
+        result() {
+            let output = ''
+            let target = this.donation.sum(this.donation.items.length) - Math.floor(this.rotateAngle / this.donation.unitAngle())
+            for (let i = 0; i < this.donation.items.length; i++) {
+                if (target > this.donation.sum(i)) {
+                    output = this.donation.items[i].option
+                }
+            }
+            return output
         }
     },
     methods: {
         // Properties
-        sum(index: number) {
-            var x = 0
-            for (let i = 0; i < index; i++) {
-                x += this.items[i].count
-            }
-            return x
-        },
-        unitAngle() {
-            return 360 / this.sum(this.items.length)
-        },
         sectorConfig(index: number, item: { option: string, count: number, color: number }) {
             return {
                 x: 356,
                 y: 356,
                 radius: 240,
-                angle: item.count * this.unitAngle(),
+                angle: item.count * this.donation.unitAngle(),
                 fill: 'hsl(' + item.color + ', 70%, 60%)',
                 stroke: 'black',
-                rotation: this.rotateAngle + this.sum(index) * this.unitAngle()
+                rotation: this.rotateAngle + this.donation.sum(index) * this.donation.unitAngle()
             }
         },
         textConfig(index: number, item: { option: string, count: number, color: number }) {
@@ -82,18 +85,8 @@ export default {
                 y: 356,
                 offsetX: -60,
                 offsetY: 8,
-                rotation: this.rotateAngle + this.sum(index) * this.unitAngle() + item.count * this.unitAngle() / 2
+                rotation: this.rotateAngle + this.donation.sum(index) * this.donation.unitAngle() + item.count * this.donation.unitAngle() / 2
             }
-        },
-        result() {
-            let output = ''
-            let target = this.sum(this.items.length) - Math.floor(this.rotateAngle / this.unitAngle())
-            for (let i = 0; i < this.items.length; i++) {
-                if (target > this.sum(i)) {
-                    output = this.items[i].option
-                }
-            }
-            return output
         },
         // Main Functions
         spin() {
@@ -102,16 +95,19 @@ export default {
                     this.rotateSpeed = 50
                     break
                 case rotateStates.spinning:
+                    this.rotateAngle += this.rotateSpeed
+                    if (this.rotateAngle >= 360) {
+                        this.rotateAngle -= 360
+                    }
+                    break
                 case rotateStates.stopping:
                     this.rotateAngle += this.rotateSpeed
                     if (this.rotateAngle >= 360) {
                         this.rotateAngle -= 360
                     }
-                    if (this.rotateState === rotateStates.stopping) {
-                        this.rotateSpeed -= 1 / Math.PI
-                        if (this.rotateSpeed <= 0) {
-                            this.rotateState += 1
-                        }
+                    this.rotateSpeed -= 1 / Math.PI
+                    if (this.rotateSpeed <= 0) {
+                        this.rotateState += 1
                     }
             }
             window.requestAnimationFrame(this.spin)
@@ -126,7 +122,7 @@ export default {
                     let roulette = JSON.parse(msg.data).content.message as string 
                     let rValue = roulette.split(' - ')[1]
                     if (rValue !== '꽝') {
-                        this.addItem(rValue)
+                        this.donation.addItem(rValue)
                     }
                 }
             }
@@ -135,25 +131,11 @@ export default {
                 setTimeout(() => this.connect(), 5000)
             }
         },
-        addItem(name: string) {
-            const idx = this.items.findIndex(item => item.option === name)
-            if (idx > -1) {
-                this.items[idx].count += 1
-            } else {
-                this.items.push({option: name, count: 1, color: Math.random() * 360})
-            }
-        },
-        subItem() {
-            const idx = this.items.findIndex(item => item.option === this.result())
-            this.items[idx].count -= 1
-            if (this.items[idx].count === 0) {
-                this.items.splice(idx, 1)
-            }
-        },
         click() {
             this.rotateState = (this.rotateState + 1) % 4
             if (this.rotateState === rotateStates.idle) {
-                this.subItem()
+                this.inventory.addItem(this.result)
+                this.donation.subItem(this.result)
             }
         }
     },
@@ -168,5 +150,9 @@ export default {
 .rotateButton{
     @apply absolute h-12 w-24 bg-yellow-300 hover:bg-yellow-400 left-[336px] bottom-[196px]
         rounded-xl
+}
+
+.resultScreen{
+    @apply absolute left-[364px] top-[224px] h-[600px] w-[630px] bg-black/50 p-4
 }
 </style>
