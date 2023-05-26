@@ -87,7 +87,7 @@ export default {
                 window.alert('오류: 판때기의 주제가 최소 14개가 있어야 정상 작동합니다.')
             } else {
                 const response = await axios.get('https://corsproxy.io/?https://toon.at/widget/alertbox/' + this.password)
-                const re = /"payload":"(?<payload>\w+)"/gm
+                const re = /"payload":"(?<payload>\w+)"/
                 const groups = re.exec(response.data)?.groups as { payload: string }
 
                 if (groups.payload !== null && groups.payload !== "") {

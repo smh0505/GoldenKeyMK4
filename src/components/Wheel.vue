@@ -1,16 +1,16 @@
 <template>
-    <v-stage :config="{ width: 712, height: 712 }">
+    <v-stage v-show="show" :config="{ width: 712, height: 712 }">
         <v-layer ref="layer">
-            <v-wedge v-if="show" v-for="(item, index) in donation.items" :config="sectorConfig(index, item)"></v-wedge>
-            <v-text v-if="show" v-for="(item, index) in donation.items" :config="textConfig(index, item)"></v-text>
-            <v-line v-if="show" :config="arrow"></v-line>
+            <v-wedge v-for="(item, index) in donation.items" :config="sectorConfig(index, item)"></v-wedge>
+            <v-text v-for="(item, index) in donation.items" :config="textConfig(index, item)"></v-text>
+            <v-line :config="arrow"></v-line>
         </v-layer>
     </v-stage>
-    <div v-if="show && rotateState === 3" class="resultScreen">
+    <div v-show="show && rotateState === 3" class="resultScreen">
         <p class="text-2xl text-white">다음 황금열쇠는</p>
         <p class="text-5xl text-yellow-300">{{ result }}</p>
     </div>
-    <button v-if="show" class="rotateButton" v-show="rotateState !== 2 && donation.items.length > 0" @click="click()">
+    <button v-show="show && rotateState !== 2 && donation.items.length > 0" class="rotateButton" @click="click()">
         {{ rotateTexts[rotateState] }}
     </button>
 </template>
@@ -19,6 +19,7 @@
 import { ref } from 'vue'
 import { useDonationStore } from '../stores/DonationStore'
 import { useInventoryStore } from '../stores/InventoryStore'
+import { useBoardStore } from '../stores/BoardStore'
 
 const rotateStates = {
     idle: 0,
@@ -30,16 +31,14 @@ const rotateStates = {
 export default {
     props: {
         show: Boolean,
-        payload: {
-            type: String,
-            required: true
-        }
+        payload: String
     },
     data() {
         return {
             socket: ref<WebSocket | null>(null),
             donation: useDonationStore(),
             inventory: useInventoryStore(),
+            board: useBoardStore(),
             rotateAngle: 0,
             rotateSpeed: 50,
             rotateTexts: ['돌리기', '멈추기', '', '다음'],
@@ -89,22 +88,22 @@ export default {
             }
         },
         // Main Functions
+        rotate() {
+            this.rotateAngle += this.rotateSpeed
+            if (this.rotateAngle >= 360) {
+                this.rotateAngle -= 360
+            }
+        },
         spin() {
             switch (this.rotateState) {
                 case rotateStates.idle:
                     this.rotateSpeed = 50
                     break
                 case rotateStates.spinning:
-                    this.rotateAngle += this.rotateSpeed
-                    if (this.rotateAngle >= 360) {
-                        this.rotateAngle -= 360
-                    }
+                    this.rotate()
                     break
                 case rotateStates.stopping:
-                    this.rotateAngle += this.rotateSpeed
-                    if (this.rotateAngle >= 360) {
-                        this.rotateAngle -= 360
-                    }
+                    this.rotate()
                     this.rotateSpeed -= 1 / Math.PI
                     if (this.rotateSpeed <= 0) {
                         this.rotateState += 1
@@ -115,7 +114,7 @@ export default {
         connect() {
             this.socket = new WebSocket('wss://toon.at:8071/' + this.payload)
             this.socket.onopen = () => {
-                console.log('connected')
+                this.board.update('투네이션 연결됨!', 4)
             }
             this.socket.onmessage = msg => {
                 if (msg.data.includes('roulette')) {
@@ -127,8 +126,8 @@ export default {
                 }
             }
             this.socket.onclose = () => {
-                console.log('disconnected')
-                setTimeout(() => this.connect(), 5000)
+                this.board.update('투네이션 연결중...', 5)
+                setTimeout(() => this.connect(), 1000)
             }
         },
         click() {
@@ -142,6 +141,12 @@ export default {
     mounted() {
         this.spin()
         this.connect()
+        this.donation.addItem('옵션 1')
+        this.donation.addItem('옵션 2')
+        this.donation.addItem('옵션 3')
+        this.donation.addItem('옵션 4')
+        this.donation.addItem('옵션 5')
+        this.donation.addItem('옵션 6')
     }
 }
 </script>

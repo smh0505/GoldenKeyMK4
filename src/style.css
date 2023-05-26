@@ -62,7 +62,7 @@
     }
 
     .button{
-        @apply flex h-full w-full place-content-center items-center relative text-3xl font-bold whitespace-pre-wrap text-center;
+        @apply flex h-full w-full place-content-center items-center relative text-2xl font-bold whitespace-pre-wrap text-center;
         font-family: "Galmuri14", sans-serif;
     }
 

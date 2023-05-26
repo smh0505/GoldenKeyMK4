@@ -57,7 +57,7 @@ export default {
 
 <style>
 .inventoryBg{
-    @apply absolute grid top-[260px] right-[336px] w-[280px] h-[160px] bg-purple-800;
+    @apply absolute grid top-[260px] right-[336px] w-[280px] h-[200px] bg-purple-800;
     font-family: 'Galmuri14', sans-serif
 }
 
@@ -103,7 +103,7 @@ export default {
 }
 
 .inventoryButtons{
-    @apply absolute grid top-[430px] right-[336px] w-[280px] h-12 grid-cols-2 gap-2 text-xl;
+    @apply absolute grid top-[470px] right-[336px] w-[280px] h-12 grid-cols-2 gap-2 text-xl;
     font-family: 'Galmuri14', sans-serif
 }
 

@@ -74,6 +74,6 @@ const countType = {
 
 const temp = [
     /(?<count>\d+)턴간(?<option>.+)/,
-    /(?<count>\d+)곡 동안(?<option>.+)/,
+    /(?<count>\d+)곡동안(?<option>.+)/,
     /(?<option>.+)\((?<count>\d+)회\)/
 ]
